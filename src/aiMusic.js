@@ -1,10 +1,12 @@
 
+import { setSongs } from './player.js';
+
 export async function getMoodSongs(mood) {
   try {
     const response = await fetch('/music/ai-songs.json');
 
     if (!response.ok) {
-      throw new Error('음악 목록을 불러오지 못했어.');
+      throw new Error('노래 목록을 불러오지 못했어.');
     }
 
     const data = await response.json();
@@ -13,9 +15,13 @@ export async function getMoodSongs(mood) {
       item => item.id === mood
     );
 
-    return selectedMood ? selectedMood.songs : [];
+    const songs = selectedMood?.songs || [];
+
+    setSongs(songs);
+
+    return songs;
   } catch (error) {
-    console.error(error);
+    console.error('Moodify 음악 오류:', error);
     return [];
   }
 }
