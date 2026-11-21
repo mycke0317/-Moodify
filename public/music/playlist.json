@@ -1,0 +1,23 @@
+
+{
+  "songs": [
+    {
+      "title": "행복한 음악",
+      "artist": "Moodify",
+      "mood": "행복",
+      "file": "/music/song1.mp3"
+    },
+    {
+      "title": "위로의 음악",
+      "artist": "Moodify",
+      "mood": "슬픔",
+      "file": "/music/song2.mp3"
+    },
+    {
+      "title": "편안한 음악",
+      "artist": "Moodify",
+      "mood": "편안함",
+      "file": "/music/song3.mp3"
+    }
+  ]
+}
