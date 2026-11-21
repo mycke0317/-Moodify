@@ -1,5 +1,0 @@
-      - name: Install Capacitor CLI
-        run: npm install --no-save @capacitor/cli@6.2.0
-
-      - name: Add Android
-        run: npx cap add android
