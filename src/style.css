@@ -1,0 +1,95 @@
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #100c1c;
+  color: white;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.app {
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  padding: 28px 22px;
+}
+
+.header {
+  text-align: center;
+  padding: 20px 0 40px;
+}
+
+.logo {
+  font-size: 32px;
+  font-weight: bold;
+  color: #c9a5ff;
+}
+
+.header p {
+  margin-top: 8px;
+  color: #9385aa;
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+
+.welcome h1 {
+  font-size: 27px;
+  margin-bottom: 12px;
+}
+
+.welcome p {
+  color: #aaa0bb;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.moods {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 28px 0;
+}
+
+.mood {
+  background: #211a31;
+  color: white;
+  border: 1px solid #403254;
+  border-radius: 16px;
+  padding: 18px 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.mood.active {
+  background: #7446ad;
+  border-color: #c9a5ff;
+}
+
+.recommend {
+  background: #211a31;
+  border-radius: 20px;
+  padding: 22px;
+  min-height: 140px;
+}
+
+.recommend h2 {
+  font-size: 19px;
+  margin-bottom: 16px;
+}
+
+#message {
+  color: #c5b8d9;
+  font-size: 14px;
+}
+
+footer {
+  text-align: center;
+  color: #827590;
+  font-size: 12px;
+  margin-top: 35px;
+}
