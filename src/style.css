@@ -13,7 +13,6 @@ body {
 }
 
 .app {
-  width: 100%;
   max-width: 480px;
   margin: auto;
   padding: 28px 22px;
@@ -25,7 +24,7 @@ body {
 }
 
 .logo {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: bold;
   color: #c9a5ff;
 }
@@ -55,14 +54,17 @@ body {
   margin: 28px 0;
 }
 
+button {
+  cursor: pointer;
+  color: white;
+  font-size: 15px;
+}
+
 .mood {
   background: #211a31;
-  color: white;
   border: 1px solid #403254;
   border-radius: 16px;
   padding: 18px 10px;
-  font-size: 16px;
-  cursor: pointer;
 }
 
 .mood.active {
@@ -70,11 +72,13 @@ body {
   border-color: #c9a5ff;
 }
 
-.recommend {
+.recommend,
+.player {
   background: #211a31;
+  border: 1px solid #403254;
   border-radius: 20px;
   padding: 22px;
-  min-height: 140px;
+  margin-top: 18px;
 }
 
 .recommend h2 {
@@ -82,9 +86,45 @@ body {
   margin-bottom: 16px;
 }
 
-#message {
-  color: #c5b8d9;
-  font-size: 14px;
+#songs {
+  display: grid;
+  gap: 10px;
+}
+
+.song {
+  background: #302442;
+  border: 1px solid #57436e;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: left;
+}
+
+.song:active {
+  background: #7446ad;
+}
+
+.player p {
+  color: #c9a5ff;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.player audio {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+}
+
+.controls button {
+  flex: 1;
+  background: #7446ad;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 5px;
 }
 
 footer {
