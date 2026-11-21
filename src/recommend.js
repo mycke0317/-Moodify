@@ -1,27 +1,44 @@
 
-import { music } from './music.js'
 import {
   setPlaylist,
   playSong
 } from './player.js'
 
-export function recommendMusic(mood, container) {
-  const songs = music[mood] || []
+export async function recommendMusic(mood, container) {
+  container.innerHTML = '<p>음악을 찾는 중...</p>'
 
-  setPlaylist(songs)
+  try {
+    const response = await fetch('/music/playlist.json')
 
-  container.innerHTML = `
-    <h3>${mood} 기분 추천 음악</h3>
-    ${songs.map((song, index) => `
-      <button class="song" data-index="${index}">
-        🎵 ${song.title} - ${song.artist}
-      </button>
-    `).join('')}
-  `
+    if (!response.ok) {
+      throw new Error('Playlist not found')
+    }
 
-  container.querySelectorAll('.song').forEach(button => {
-    button.addEventListener('click', () => {
-      playSong(Number(button.dataset.index))
+    const data = await response.json()
+    const songs = data.songs.filter(song => song.mood === mood)
+
+    setPlaylist(songs)
+
+    if (!songs.length) {
+      container.innerHTML = '<p>아직 추천 음악이 없어!</p>'
+      return
+    }
+
+    container.innerHTML = `
+      <h3>${mood} 기분 추천 음악</h3>
+      ${songs.map((song, index) => `
+        <button class="song" data-index="${index}">
+          🎵 ${song.title} - ${song.artist}
+        </button>
+      `).join('')}
+    `
+
+    container.querySelectorAll('.song').forEach(button => {
+      button.addEventListener('click', () => {
+        playSong(Number(button.dataset.index))
+      })
     })
-  })
+  } catch (error) {
+    container.innerHTML = '<p>음악 목록을 불러오지 못했어.</p>'
+  }
 }
