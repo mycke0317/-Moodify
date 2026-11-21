@@ -1,0 +1,17 @@
+
+{
+  "name": "Moodify",
+  "short_name": "Moodify",
+  "description": "AI mood-based music recommendation and in-app music player",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#100c1c",
+  "theme_color": "#100c1c",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
