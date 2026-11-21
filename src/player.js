@@ -1,48 +1,101 @@
 
-let audio = new Audio();
-let currentSongs = [];
-let currentIndex = 0;
+class MusicPlayer {
+  constructor() {
+    this.audio = new Audio();
+    this.audio.preload = "auto";
+    this.currentSong = null;
+    this.isPlaying = false;
 
-export function setSongs(songs) {
-  currentSongs = songs;
-  currentIndex = 0;
-}
+    this.audio.addEventListener("play", () => {
+      this.isPlaying = true;
+      this.updateUI();
+    });
 
-export function playSong(index) {
-  if (!currentSongs.length) return;
+    this.audio.addEventListener("pause", () => {
+      this.isPlaying = false;
+      this.updateUI();
+    });
 
-  currentIndex =
-    (index + currentSongs.length) % currentSongs.length;
+    this.audio.addEventListener("ended", () => {
+      this.isPlaying = false;
+      this.updateUI();
+      window.dispatchEvent(new Event("songended"));
+    });
 
-  const song = currentSongs[currentIndex];
-
-  if (!song.audioUrl) {
-    alert('아직 생성된 음악이 없어!');
-    return;
+    this.audio.addEventListener("error", () => {
+      console.error("음악 파일을 재생할 수 없습니다.");
+    });
   }
 
-  audio.src = song.audioUrl;
-  audio.play();
+  play(url, title = "Music") {
+    if (!url) {
+      console.error("음악 주소가 없습니다.");
+      return;
+    }
+
+    if (this.currentSong === url) {
+      return this.resume();
+    }
+
+    this.currentSong = url;
+    this.audio.src = url;
+    this.audio.load();
+
+    this.audio.play().catch(error => {
+      console.error("재생 오류:", error);
+    });
+
+    window.dispatchEvent(new CustomEvent("songchange", {
+      detail: { url, title }
+    }));
+  }
+
+  pause() {
+    this.audio.pause();
+  }
+
+  resume() {
+    if (!this.audio.src) return;
+    return this.audio.play().catch(console.error);
+  }
+
+  toggle() {
+    if (this.audio.paused) {
+      this.resume();
+    } else {
+      this.pause();
+    }
+  }
+
+  seek(seconds) {
+    this.audio.currentTime = seconds;
+  }
+
+  setVolume(volume) {
+    this.audio.volume = Math.max(0, Math.min(1, volume));
+  }
+
+  updateUI() {
+    document.querySelectorAll("[data-player-toggle]").forEach(button => {
+      button.textContent = this.isPlaying ? "⏸" : "▶";
+    });
+  }
 }
 
-export function pauseSong() {
-  audio.pause();
-}
+const player = new MusicPlayer();
 
-export function resumeSong() {
-  audio.play();
-}
+window.musicPlayer = player;
+window.playMusic = (url, title) => player.play(url, title);
+window.pauseMusic = () => player.pause();
+window.resumeMusic = () => player.resume();
+window.toggleMusic = () => player.toggle();
 
-export function nextSong() {
-  playSong(currentIndex + 1);
-}
+document.addEventListener("click", event => {
+  const button = event.target.closest("[data-audio-src]");
+  if (!button) return;
 
-export function previousSong() {
-  playSong(currentIndex - 1);
-}
-
-export function getAudio() {
-  return audio;
-}
-
-audio.addEventListener('ended', nextSong);
+  player.play(
+    button.dataset.audioSrc,
+    button.dataset.title || "Music"
+  );
+});
