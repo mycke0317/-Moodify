@@ -1,0 +1,29 @@
+
+.ai-music {
+  margin-top: 20px;
+  padding: 20px;
+  background: #211a31;
+  border-radius: 18px;
+}
+
+.ai-music h2 {
+  color: #c9a5ff;
+  margin-bottom: 16px;
+}
+
+.ai-song {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  margin-bottom: 10px;
+  border: 1px solid #57436e;
+  border-radius: 12px;
+  background: #302442;
+  color: white;
+  text-align: left;
+  font-size: 15px;
+}
+
+.ai-song:hover {
+  background: #7446ad;
+}
