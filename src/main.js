@@ -1,14 +1,16 @@
 
-import './style.css'
-import { recommendMusic } from './recommend.js'
-import {
-  pauseSong,
-  nextSong,
-  previousSong,
-  getAudio
-} from './player.js'
+import './style.css';
+import './aiMusic.css';
+import { getMoodSongs } from './aiMusic.js';
 
-const moods = ['행복', '슬픔', '화남', '편안함', '설렘', '피곤함']
+const moods = [
+  { id: 'happy', name: '😊 행복' },
+  { id: 'sad', name: '😢 슬픔' },
+  { id: 'angry', name: '🔥 화남' },
+  { id: 'calm', name: '🌿 편안함' },
+  { id: 'excited', name: '💗 설렘' },
+  { id: 'tired', name: '😴 피곤함' }
+];
 
 document.querySelector('#app').innerHTML = `
   <main class="app">
@@ -17,57 +19,42 @@ document.querySelector('#app').innerHTML = `
       <p>YOUR MOOD, YOUR MUSIC</p>
     </header>
 
-    <section class="welcome">
-      <h1>오늘 기분은 어때?</h1>
-      <p>기분을 선택하면 어울리는 음악을 추천해 줄게.</p>
-    </section>
-
+    <h1>오늘 기분은 어때?</h1>
     <section class="moods">
       ${moods.map(mood => `
-        <button class="mood" data-mood="${mood}">
-          ${mood}
+        <button class="mood" data-mood="${mood.id}">
+          ${mood.name}
         </button>
       `).join('')}
     </section>
 
-    <section class="recommend">
-      <h2>🎵 추천 음악</h2>
-      <div id="songs">
-        <p>기분을 선택해 줘!</p>
-      </div>
+    <section id="songs" class="ai-music">
+      <h2>🎵 AI 추천 음악</h2>
+      <p>기분을 선택해 줘!</p>
     </section>
-
-    <section class="player">
-      <p>🎧 Moodify Music Player</p>
-      <audio id="audio" controls></audio>
-      <div class="controls">
-        <button id="prev">⏮ 이전 곡</button>
-        <button id="pause">⏸ 일시정지</button>
-        <button id="next">다음 곡 ⏭</button>
-      </div>
-    </section>
-
-    <footer>Made with 💜 Moodify</footer>
   </main>
-`
+`;
 
-const songsContainer = document.querySelector('#songs')
-const audio = getAudio()
+const songsContainer = document.querySelector('#songs');
 
 document.querySelectorAll('.mood').forEach(button => {
-  button.addEventListener('click', () => {
+  button.addEventListener('click', async () => {
     document.querySelectorAll('.mood').forEach(item =>
       item.classList.remove('active')
-    )
+    );
 
-    button.classList.add('active')
-    recommendMusic(button.dataset.mood, songsContainer)
-  })
-})
+    button.classList.add('active');
 
-document.querySelector('#pause').addEventListener('click', pauseSong)
-document.querySelector('#next').addEventListener('click', nextSong)
-document.querySelector('#prev').addEventListener('click', previousSong)
+    const songs = await getMoodSongs(button.dataset.mood);
 
-document.querySelector('#audio').replaceWith(audio)
-audio.controls = true
+    songsContainer.innerHTML = `
+      <h2>🎤 추천 노래</h2>
+      ${songs.map(song => `
+        <div class="ai-song">
+          🎵 ${song.title}
+          <p>${song.lyrics}</p>
+        </div>
+      `).join('')}
+    `;
+  });
+});
