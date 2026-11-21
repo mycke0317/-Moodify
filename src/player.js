@@ -1,44 +1,48 @@
 
-let audio = new Audio()
-let playlist = []
-let currentIndex = 0
+let audio = new Audio();
+let currentSongs = [];
+let currentIndex = 0;
 
-export function setPlaylist(songs) {
-  playlist = songs
-  currentIndex = 0
+export function setSongs(songs) {
+  currentSongs = songs;
+  currentIndex = 0;
 }
 
 export function playSong(index) {
-  if (!playlist.length) return
+  if (!currentSongs.length) return;
 
-  currentIndex = (index + playlist.length) % playlist.length
-  const song = playlist[currentIndex]
+  currentIndex =
+    (index + currentSongs.length) % currentSongs.length;
 
-  if (!song.file) {
-    alert('아직 음악 파일이 등록되지 않았어!')
-    return
+  const song = currentSongs[currentIndex];
+
+  if (!song.audioUrl) {
+    alert('아직 생성된 음악이 없어!');
+    return;
   }
 
-  audio.src = song.file
-  audio.play().catch(() => {
-    alert('음악을 재생할 수 없어. 음원 파일을 확인해 줘.')
-  })
+  audio.src = song.audioUrl;
+  audio.play();
 }
 
 export function pauseSong() {
-  audio.pause()
+  audio.pause();
+}
+
+export function resumeSong() {
+  audio.play();
 }
 
 export function nextSong() {
-  playSong(currentIndex + 1)
+  playSong(currentIndex + 1);
 }
 
 export function previousSong() {
-  playSong(currentIndex - 1)
+  playSong(currentIndex - 1);
 }
 
 export function getAudio() {
-  return audio
+  return audio;
 }
 
-audio.addEventListener('ended', nextSong)
+audio.addEventListener('ended', nextSong);
