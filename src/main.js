@@ -9,6 +9,7 @@ import {
 
 import {
   setMood,
+  setCurrentSong,
   playSong,
   pauseSong,
   resumeSong,
@@ -16,6 +17,7 @@ import {
 } from './player.js';
 
 const allSongs = getAllMoodSongs();
+
 let selectedMood = 'happy';
 let selectedSong = null;
 
@@ -25,6 +27,7 @@ document.querySelector('#app').innerHTML = `
     <p class="subtitle">Your mood, your music.</p>
 
     <h2>오늘의 기분</h2>
+
     <section class="moods">
       <button data-mood="happy">😊 행복</button>
       <button data-mood="sad">😢 슬픔</button>
@@ -41,7 +44,10 @@ document.querySelector('#app').innerHTML = `
 
     <section class="song-card">
       <h2 id="currentTitle">노래를 선택해 줘</h2>
-      <p id="currentLyrics" class="lyrics">가사가 여기에 표시돼.</p>
+
+      <p id="currentLyrics" class="lyrics">
+        가사가 여기에 표시돼.
+      </p>
 
       <div class="player">
         <button id="play">▶ 재생</button>
@@ -49,6 +55,7 @@ document.querySelector('#app').innerHTML = `
         <button id="resume">▶ 이어듣기</button>
         <button id="stop">■ 정지</button>
       </div>
+
       <p id="status">Moodify</p>
     </section>
 
@@ -58,7 +65,10 @@ document.querySelector('#app').innerHTML = `
 
 function showSongs(mood) {
   selectedMood = mood;
+  selectedSong = null;
+
   setMood(mood);
+  stopSong();
 
   const songs = getMoodSongs(mood);
 
@@ -68,22 +78,42 @@ function showSongs(mood) {
   document.querySelector('#songCount').textContent =
     songs.length + '곡';
 
+  document.querySelector('#currentTitle').textContent =
+    '노래를 선택해 줘';
+
+  document.querySelector('#currentLyrics').textContent =
+    '가사가 여기에 표시돼.';
+
+  document.querySelector('#status').textContent =
+    '노래를 선택해 줘.';
+
   document.querySelectorAll('[data-mood]').forEach(button => {
-    button.classList.toggle('active', button.dataset.mood === mood);
+    button.classList.toggle(
+      'active',
+      button.dataset.mood === mood
+    );
   });
 
   document.querySelector('#songList').innerHTML =
     songs.map(song => `
       <article class="song-card">
         <h3>${song.title}</h3>
+
         <p class="lyrics">${song.lyrics}</p>
-        <button data-song="${song.id}">이 노래 선택</button>
+
+        <button data-song="${song.id}">
+          이 노래 선택
+        </button>
       </article>
     `).join('');
 
   document.querySelectorAll('[data-song]').forEach(button => {
     button.addEventListener('click', () => {
-      selectedSong = songs.find(song => song.id === button.dataset.song);
+      selectedSong = songs.find(
+        song => song.id === button.dataset.song
+      );
+
+      setCurrentSong(selectedSong);
 
       document.querySelector('#currentTitle').textContent =
         selectedSong.title;
@@ -98,25 +128,48 @@ function showSongs(mood) {
 }
 
 document.querySelectorAll('[data-mood]').forEach(button => {
-  button.addEventListener('click', () => showSongs(button.dataset.mood));
+  button.addEventListener('click', () => {
+    showSongs(button.dataset.mood);
+  });
 });
 
 document.querySelector('#play').addEventListener('click', async () => {
   if (!selectedSong) {
-    document.querySelector('#status').textContent = '먼저 노래를 선택해 줘.';
+    document.querySelector('#status').textContent =
+      '먼저 노래를 선택해 줘.';
     return;
   }
 
   try {
-    await playSong();
-    document.querySelector('#status').textContent = '재생 중';
+    await playSong(selectedSong);
+
+    document.querySelector('#status').textContent =
+      '재생 중';
   } catch (error) {
-    document.querySelector('#status').textContent = error.message;
+    document.querySelector('#status').textContent =
+      '재생 오류: ' + error.message;
   }
 });
 
-document.querySelector('#pause').addEventListener('click', pauseSong);
-document.querySelector('#resume').addEventListener('click', resumeSong);
-document.querySelector('#stop').addEventListener('click', stopSong);
+document.querySelector('#pause').addEventListener('click', () => {
+  pauseSong();
+
+  document.querySelector('#status').textContent =
+    '일시정지';
+});
+
+document.querySelector('#resume').addEventListener('click', async () => {
+  await resumeSong();
+
+  document.querySelector('#status').textContent =
+    '이어듣기 요청됨';
+});
+
+document.querySelector('#stop').addEventListener('click', () => {
+  stopSong();
+
+  document.querySelector('#status').textContent =
+    '정지됨';
+});
 
 showSongs('happy');
