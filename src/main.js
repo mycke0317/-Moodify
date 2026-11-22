@@ -16,9 +16,10 @@ import {
   stopSong
 } from './player.js';
 
+import { generateMusic } from './musicGenerator.js';
+
 const allSongs = getAllMoodSongs();
 
-let selectedMood = 'happy';
 let selectedSong = null;
 
 document.querySelector('#app').innerHTML = `
@@ -50,6 +51,7 @@ document.querySelector('#app').innerHTML = `
       </p>
 
       <div class="player">
+        <button id="generate">✨ AI 음악 생성</button>
         <button id="play">▶ 재생</button>
         <button id="pause">⏸ 일시정지</button>
         <button id="resume">▶ 이어듣기</button>
@@ -64,7 +66,6 @@ document.querySelector('#app').innerHTML = `
 `;
 
 function showSongs(mood) {
-  selectedMood = mood;
   selectedSong = null;
 
   setMood(mood);
@@ -98,12 +99,8 @@ function showSongs(mood) {
     songs.map(song => `
       <article class="song-card">
         <h3>${song.title}</h3>
-
         <p class="lyrics">${song.lyrics}</p>
-
-        <button data-song="${song.id}">
-          이 노래 선택
-        </button>
+        <button data-song="${song.id}">이 노래 선택</button>
       </article>
     `).join('');
 
@@ -122,7 +119,7 @@ function showSongs(mood) {
         selectedSong.lyrics;
 
       document.querySelector('#status').textContent =
-        '선택한 노래: ' + selectedSong.title;
+        '노래 선택 완료';
     });
   });
 }
@@ -133,7 +130,7 @@ document.querySelectorAll('[data-mood]').forEach(button => {
   });
 });
 
-document.querySelector('#play').addEventListener('click', async () => {
+document.querySelector('#generate').addEventListener('click', async () => {
   if (!selectedSong) {
     document.querySelector('#status').textContent =
       '먼저 노래를 선택해 줘.';
@@ -141,35 +138,33 @@ document.querySelector('#play').addEventListener('click', async () => {
   }
 
   try {
-    await playSong(selectedSong);
+    document.querySelector('#status').textContent =
+      '음악 생성 요청 중...';
+
+    selectedSong = await generateMusic(selectedSong);
+
+    setCurrentSong(selectedSong);
 
     document.querySelector('#status').textContent =
-      '재생 중';
+      '음악 생성 완료';
   } catch (error) {
     document.querySelector('#status').textContent =
-      '재생 오류: ' + error.message;
+      error.message;
   }
 });
 
-document.querySelector('#pause').addEventListener('click', () => {
-  pauseSong();
-
-  document.querySelector('#status').textContent =
-    '일시정지';
+document.querySelector('#play').addEventListener('click', async () => {
+  try {
+    await playSong(selectedSong);
+    document.querySelector('#status').textContent = '재생 중';
+  } catch (error) {
+    document.querySelector('#status').textContent =
+      error.message;
+  }
 });
 
-document.querySelector('#resume').addEventListener('click', async () => {
-  await resumeSong();
-
-  document.querySelector('#status').textContent =
-    '이어듣기 요청됨';
-});
-
-document.querySelector('#stop').addEventListener('click', () => {
-  stopSong();
-
-  document.querySelector('#status').textContent =
-    '정지됨';
-});
+document.querySelector('#pause').addEventListener('click', pauseSong);
+document.querySelector('#resume').addEventListener('click', resumeSong);
+document.querySelector('#stop').addEventListener('click', stopSong);
 
 showSongs('happy');
