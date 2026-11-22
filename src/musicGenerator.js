@@ -1,26 +1,42 @@
 
 const moodStyles = {
-  happy: '밝고 신나는 팝, 경쾌한 보컬',
-  sad: '감성적인 피아노 팝, 부드러운 보컬',
-  angry: '강렬한 록, 파워풀한 보컬',
-  calm: '잔잔한 로파이, 편안한 보컬',
-  excited: '설레는 신스 팝, 달콤한 보컬',
-  tired: '느린 앰비언트, 따뜻한 보컬'
+  happy: 'upbeat cheerful pop, bright synths, vocals',
+  sad: 'emotional piano pop, gentle vocals',
+  angry: 'powerful rock, energetic drums, vocals',
+  calm: 'soft lo-fi, peaceful ambient, gentle vocals',
+  excited: 'romantic synth pop, sparkling melody, vocals',
+  tired: 'slow ambient, warm relaxing vocals'
 };
 
-export function createMusicPrompt(mood, lyrics) {
-  return {
-    title: 'Moodify Original Music',
-    style: moodStyles[mood] || moodStyles.calm,
-    lyrics,
-    instrumental: false,
-    vocal: true
-  };
-}
+export async function generateMusic(song, mood) {
+  if (!song?.lyrics) {
+    throw new Error('노래 가사가 필요해.');
+  }
 
-export function getMusicStatus() {
+  const response = await fetch('/api/music/generate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      title: song.title,
+      lyrics: song.lyrics,
+      style: moodStyles[mood] || moodStyles.calm
+    })
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.error || '음악 생성에 실패했어.');
+  }
+
+  if (!result.audioUrl) {
+    throw new Error('생성된 음악 주소가 없어.');
+  }
+
   return {
-    ready: false,
-    message: '실제 AI 음원 생성 서비스 연결이 필요해.'
+    ...song,
+    audioUrl: result.audioUrl
   };
 }
