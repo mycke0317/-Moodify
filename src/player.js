@@ -1,104 +1,144 @@
 
 import { moodMelodies } from './moodMelodies.js';
 
-let audioContext;
+let audioContext = null;
 let oscillators = [];
 let timer = null;
+
 let currentMood = 'happy';
 let currentSong = null;
+let noteIndex = 0;
 let isPaused = false;
 
-export function setMood(mood) {
-  if (moodMelodies[mood]) {
-    currentMood = mood;
-    currentSong = null;
-    stopSong();
+function getAudioContext() {
+  if (!audioContext) {
+    audioContext = new AudioContext();
   }
+
+  return audioContext;
+}
+
+export function setMood(mood) {
+  if (!moodMelodies[mood]) return;
+
+  stopSong();
+
+  currentMood = mood;
+  currentSong = null;
+  noteIndex = 0;
 }
 
 export function setCurrentSong(song) {
-  currentSong = song;
   stopSong();
+  currentSong = song;
+  noteIndex = 0;
+}
+
+function playNote() {
+  if (isPaused) return;
+
+  const notes = moodMelodies[currentMood];
+
+  if (!notes || notes.length === 0) return;
+
+  const context = getAudioContext();
+
+  if (noteIndex >= notes.length) {
+    noteIndex = 0;
+  }
+
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+
+  oscillator.type = 'sine';
+  oscillator.frequency.value = notes[noteIndex];
+
+  gain.gain.setValueAtTime(0.1, context.currentTime);
+  gain.gain.exponentialRampToValueAtTime(
+    0.001,
+    context.currentTime + 0.45
+  );
+
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+
+  oscillator.start();
+  oscillator.stop(context.currentTime + 0.5);
+
+  oscillators.push(oscillator);
+
+  noteIndex++;
 }
 
 export async function playSong(song = currentSong) {
-  if (song) currentSong = song;
+  if (song) {
+    currentSong = song;
+  }
 
-  audioContext ??= new AudioContext();
+  const context = getAudioContext();
+
+  if (context.state === 'suspended') {
+    await context.resume();
+  }
+
+  stopSong();
+
+  noteIndex = 0;
+  isPaused = false;
+
+  playNote();
+
+  timer = setInterval(() => {
+    playNote();
+  }, 500);
+}
+
+export async function pauseSong() {
+  isPaused = true;
+
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  if (audioContext?.state === 'running') {
+    await audioContext.suspend();
+  }
+}
+
+export async function resumeSong() {
+  if (!audioContext || !currentSong) return;
 
   if (audioContext.state === 'suspended') {
     await audioContext.resume();
   }
 
-  stopSong();
+  if (!timer) {
+    isPaused = false;
 
-  const notes = moodMelodies[currentMood];
-  if (!notes?.length) return;
+    playNote();
 
-  let index = 0;
-  isPaused = false;
-
-  function playNote() {
-    if (isPaused) return;
-    if (index >= notes.length) index = 0;
-
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-
-    oscillator.type = 'sine';
-    oscillator.frequency.value = notes[index];
-
-    gain.gain.setValueAtTime(0.12, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(
-      0.001,
-      audioContext.currentTime + 0.45
-    );
-
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.5);
-
-    oscillators.push(oscillator);
-    index++;
-  }
-
-  playNote();
-  timer = setInterval(playNote, 500);
-}
-
-export function pauseSong() {
-  isPaused = true;
-
-  if (timer) clearInterval(timer);
-  timer = null;
-
-  if (audioContext?.state === 'running') {
-    audioContext.suspend();
-  }
-}
-
-export async function resumeSong() {
-  if (audioContext?.state === 'suspended') {
-    await audioContext.resume();
-  }
-
-  isPaused = false;
-
-  if (!timer && audioContext) {
-    // 실제 이어듣기는 아래 재생 버튼으로 다시 시작
+    timer = setInterval(() => {
+      playNote();
+    }, 500);
   }
 }
 
 export function stopSong() {
-  if (timer) clearInterval(timer);
-  timer = null;
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
 
-  oscillators.forEach(o => {
-    try { o.stop(); } catch {}
+  oscillators.forEach(oscillator => {
+    try {
+      oscillator.stop();
+    } catch {
+      // 이미 종료된 소리는 무시
+    }
   });
 
   oscillators = [];
   isPaused = false;
+  noteIndex = 0;
 }
