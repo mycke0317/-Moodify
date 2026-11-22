@@ -1,93 +1,50 @@
 
-export let songs = [];
+let audio = new Audio();
+let currentSongs = [];
+let currentIndex = 0;
 
-export function setSongs(newSongs) {
-  songs = Array.isArray(newSongs) ? newSongs : [];
-  window.dispatchEvent(
-    new CustomEvent("songsupdated", { detail: songs })
-  );
+export function setSongs(songs) {
+  currentSongs = songs;
+  currentIndex = 0;
 }
 
-export function getSongs() {
-  return songs;
+export function playSong(index) {
+  if (!currentSongs.length) return;
+
+  currentIndex =
+    (index + currentSongs.length) % currentSongs.length;
+
+  const song = currentSongs[currentIndex];
+
+  if (!song.audioUrl) {
+    alert('이 노래에는 아직 MP3 음원이 없어!');
+    return;
+  }
+
+  audio.src = song.audioUrl;
+  audio.play().catch(() => {
+    alert('음원을 재생할 수 없어. MP3 주소를 확인해 줘.');
+  });
 }
 
-class MusicPlayer {
-  constructor() {
-    this.audio = new Audio();
-    this.currentIndex = -1;
-  }
-
-  play(url, title = "Music") {
-    if (!url) return;
-
-    this.audio.src = url;
-
-    this.audio.play().catch(error => {
-      console.error("Music playback error:", error);
-    });
-
-    window.dispatchEvent(
-      new CustomEvent("songchange", {
-        detail: { url, title }
-      })
-    );
-  }
-
-  playSong(index) {
-    if (index < 0 || index >= songs.length) return;
-
-    this.currentIndex = index;
-    const song = songs[index];
-
-    this.play(
-      song.url || song.audioUrl || song.src,
-      song.title || song.name || "Music"
-    );
-  }
-
-  pause() {
-    this.audio.pause();
-  }
-
-  resume() {
-    return this.audio.play().catch(console.error);
-  }
-
-  toggle() {
-    return this.audio.paused
-      ? this.resume()
-      : this.pause();
-  }
-
-  next() {
-    if (this.currentIndex < songs.length - 1) {
-      this.playSong(this.currentIndex + 1);
-    }
-  }
-
-  previous() {
-    if (this.currentIndex > 0) {
-      this.playSong(this.currentIndex - 1);
-    }
-  }
-
-  setVolume(value) {
-    this.audio.volume = Math.max(0, Math.min(1, value));
-  }
+export function pauseSong() {
+  audio.pause();
 }
 
-const player = new MusicPlayer();
+export function resumeSong() {
+  audio.play();
+}
 
-export default player;
-export const playMusic = (url, title) => player.play(url, title);
-export const pauseMusic = () => player.pause();
-export const resumeMusic = () => player.resume();
-export const toggleMusic = () => player.toggle();
-export const nextSong = () => player.next();
-export const previousSong = () => player.previous();
+export function nextSong() {
+  playSong(currentIndex + 1);
+}
 
-window.musicPlayer = player;
-window.playMusic = playMusic;
-window.pauseMusic = pauseMusic;
-window.toggleMusic = toggleMusic;
+export function previousSong() {
+  playSong(currentIndex - 1);
+}
+
+export function getAudio() {
+  return audio;
+}
+
+audio.addEventListener('ended', nextSong);
