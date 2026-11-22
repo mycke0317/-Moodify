@@ -2,25 +2,16 @@
 import './style.css';
 import './aiMusic.css';
 import { getMoodSongs } from './aiMusic.js';
-import {
-  playSong,
-  pauseSong,
-  resumeSong,
-  nextSong,
-  previousSong
-} from './player.js';
+import { createMusicPrompt } from './musicGenerator.js';
 
 const moods = [
-  { id: 'happy', name: '😊 행복' },
-  { id: 'sad', name: '😢 슬픔' },
-  { id: 'angry', name: '🔥 화남' },
-  { id: 'calm', name: '🌿 편안함' },
-  { id: 'excited', name: '💗 설렘' },
-  { id: 'tired', name: '😴 피곤함' }
+  ['happy', '😊 행복'],
+  ['sad', '😢 슬픔'],
+  ['angry', '🔥 화남'],
+  ['calm', '🌿 편안함'],
+  ['excited', '💗 설렘'],
+  ['tired', '😴 피곤함']
 ];
-
-let currentSongs = [];
-let currentIndex = 0;
 
 document.querySelector('#app').innerHTML = `
   <main class="app">
@@ -29,99 +20,66 @@ document.querySelector('#app').innerHTML = `
       <p>YOUR MOOD, YOUR MUSIC</p>
     </header>
 
-    <h1>오늘 기분은 어때?</h1>
+    <h1>나만의 AI 음악 만들기</h1>
+    <p>기분을 선택하고 나만의 노래를 만들어 봐!</p>
 
     <section class="moods">
-      ${moods.map(mood => `
-        <button class="mood" data-mood="${mood.id}">
-          ${mood.name}
-        </button>
+      ${moods.map(([id, name]) => `
+        <button class="mood" data-mood="${id}">${name}</button>
       `).join('')}
     </section>
 
-    <section id="songs" class="ai-music">
-      <h2>🎵 AI 추천 음악</h2>
-      <p>기분을 선택해 줘!</p>
-    </section>
+    <section class="music-creator">
+      <h2>🎤 나만의 노래</h2>
+      <label for="lyrics">가사</label>
+      <textarea id="lyrics" placeholder="노래 가사를 입력하거나 추천 가사를 사용해 봐."></textarea>
 
-    <section class="music-player">
-      <h2 id="nowPlaying">재생할 노래를 선택해 줘</h2>
-      <div class="player-controls">
-        <button id="previous">⏮</button>
-        <button id="play">▶</button>
-        <button id="pause">⏸</button>
-        <button id="next">⏭</button>
-      </div>
-      <p id="playerStatus">Moodify Player</p>
+      <button id="suggestLyrics">✨ 기분에 맞는 가사 가져오기</button>
+      <button id="createMusic">🎵 AI 음악 만들기</button>
+
+      <p id="creationStatus">먼저 기분을 선택해 줘!</p>
+      <pre id="musicPrompt"></pre>
     </section>
   </main>
 `;
 
-const songsContainer = document.querySelector('#songs');
-const nowPlaying = document.querySelector('#nowPlaying');
-const playerStatus = document.querySelector('#playerStatus');
+let selectedMood = 'happy';
 
 document.querySelectorAll('.mood').forEach(button => {
   button.addEventListener('click', () => {
+    selectedMood = button.dataset.mood;
+
     document.querySelectorAll('.mood').forEach(item =>
       item.classList.remove('active')
     );
 
     button.classList.add('active');
-
-    currentSongs = getMoodSongs(button.dataset.mood);
-    currentIndex = 0;
-
-    songsContainer.innerHTML = `
-      <h2>🎤 추천 노래</h2>
-      ${currentSongs.map((song, index) => `
-        <button class="ai-song" data-index="${index}">
-          🎵 ${song.title}
-          <p>${song.lyrics}</p>
-        </button>
-      `).join('')}
-    `;
-
-    songsContainer.querySelectorAll('.ai-song').forEach(songButton => {
-      songButton.addEventListener('click', async () => {
-        currentIndex = Number(songButton.dataset.index);
-        await playSelectedSong();
-      });
-    });
-
-    playerStatus.textContent = `${currentSongs.length}곡 준비됨`;
+    document.querySelector('#creationStatus').textContent =
+      `선택한 기분: ${selectedMood}`;
   });
 });
 
-async function playSelectedSong() {
-  const song = currentSongs[currentIndex];
-  if (!song) return;
+document.querySelector('#suggestLyrics').addEventListener('click', () => {
+  const songs = getMoodSongs(selectedMood);
 
-  nowPlaying.textContent = song.title;
-  await playSong(currentIndex);
-}
+  document.querySelector('#lyrics').value =
+    songs[0]?.lyrics || '';
+});
 
-document.querySelector('#play').addEventListener('click', async () => {
-  if (!currentSongs.length) {
-    alert('먼저 기분을 선택해 줘!');
+document.querySelector('#createMusic').addEventListener('click', () => {
+  const lyrics = document.querySelector('#lyrics').value.trim();
+  const status = document.querySelector('#creationStatus');
+  const promptBox = document.querySelector('#musicPrompt');
+
+  if (!lyrics) {
+    status.textContent = '먼저 가사를 입력해 줘!';
     return;
   }
-  await playSelectedSong();
-});
 
-document.querySelector('#pause').addEventListener('click', () => {
-  pauseSong();
-});
+  const prompt = createMusicPrompt(selectedMood, lyrics);
 
-document.querySelector('#next').addEventListener('click', async () => {
-  if (!currentSongs.length) return;
-  currentIndex = (currentIndex + 1) % currentSongs.length;
-  await playSelectedSong();
-});
+  promptBox.textContent = JSON.stringify(prompt, null, 2);
 
-document.querySelector('#previous').addEventListener('click', async () => {
-  if (!currentSongs.length) return;
-  currentIndex =
-    (currentIndex - 1 + currentSongs.length) % currentSongs.length;
-  await playSelectedSong();
+  status.textContent =
+    '음악 생성 요청 내용이 준비됐어. 실제 음원 생성 서비스 연결이 필요해.';
 });
