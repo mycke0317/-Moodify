@@ -5,12 +5,25 @@ let audioContext;
 let oscillators = [];
 let timer = null;
 let currentMood = 'happy';
+let currentSong = null;
+let isPaused = false;
 
 export function setMood(mood) {
-  if (moodMelodies[mood]) currentMood = mood;
+  if (moodMelodies[mood]) {
+    currentMood = mood;
+    currentSong = null;
+    stopSong();
+  }
 }
 
-export async function playSong() {
+export function setCurrentSong(song) {
+  currentSong = song;
+  stopSong();
+}
+
+export async function playSong(song = currentSong) {
+  if (song) currentSong = song;
+
   audioContext ??= new AudioContext();
 
   if (audioContext.state === 'suspended') {
@@ -20,9 +33,13 @@ export async function playSong() {
   stopSong();
 
   const notes = moodMelodies[currentMood];
+  if (!notes?.length) return;
+
   let index = 0;
+  isPaused = false;
 
   function playNote() {
+    if (isPaused) return;
     if (index >= notes.length) index = 0;
 
     const oscillator = audioContext.createOscillator();
@@ -52,6 +69,11 @@ export async function playSong() {
 }
 
 export function pauseSong() {
+  isPaused = true;
+
+  if (timer) clearInterval(timer);
+  timer = null;
+
   if (audioContext?.state === 'running') {
     audioContext.suspend();
   }
@@ -60,6 +82,12 @@ export function pauseSong() {
 export async function resumeSong() {
   if (audioContext?.state === 'suspended') {
     await audioContext.resume();
+  }
+
+  isPaused = false;
+
+  if (!timer && audioContext) {
+    // 실제 이어듣기는 아래 재생 버튼으로 다시 시작
   }
 }
 
@@ -72,4 +100,5 @@ export function stopSong() {
   });
 
   oscillators = [];
+  isPaused = false;
 }
