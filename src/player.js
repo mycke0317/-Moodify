@@ -1,55 +1,75 @@
 
-let audio = new Audio();
-let currentSongs = [];
-let currentIndex = 0;
+import { moodMelodies } from './moodMelodies.js';
 
-export function setSongs(songs) {
-  audio.pause();
-  currentSongs = songs;
-  currentIndex = 0;
+let audioContext;
+let oscillators = [];
+let timer = null;
+let currentMood = 'happy';
+
+export function setMood(mood) {
+  if (moodMelodies[mood]) currentMood = mood;
 }
 
-export async function playSong(index = currentIndex) {
-  if (!currentSongs.length) {
-    alert("재생할 음악이 없어!");
-    return;
+export async function playSong() {
+  audioContext ??= new AudioContext();
+
+  if (audioContext.state === 'suspended') {
+    await audioContext.resume();
   }
 
-  currentIndex = (index + currentSongs.length) % currentSongs.length;
-  const song = currentSongs[currentIndex];
+  stopSong();
 
-  if (!song.audioUrl) {
-    alert("이 곡에는 아직 음악 파일이 없어!");
-    return;
+  const notes = moodMelodies[currentMood];
+  let index = 0;
+
+  function playNote() {
+    if (index >= notes.length) index = 0;
+
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.value = notes[index];
+
+    gain.gain.setValueAtTime(0.12, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      audioContext.currentTime + 0.45
+    );
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.5);
+
+    oscillators.push(oscillator);
+    index++;
   }
 
-  audio.src = song.audioUrl;
-  audio.load();
-
-  try {
-    await audio.play();
-  } catch (error) {
-    alert("재생에 실패했어.");
-    console.error(error);
-  }
+  playNote();
+  timer = setInterval(playNote, 500);
 }
 
 export function pauseSong() {
-  audio.pause();
+  if (audioContext?.state === 'running') {
+    audioContext.suspend();
+  }
 }
 
-export function resumeSong() {
-  return audio.play();
+export async function resumeSong() {
+  if (audioContext?.state === 'suspended') {
+    await audioContext.resume();
+  }
 }
 
-export function nextSong() {
-  return playSong(currentIndex + 1);
-}
+export function stopSong() {
+  if (timer) clearInterval(timer);
+  timer = null;
 
-export function previousSong() {
-  return playSong(currentIndex - 1);
-}
+  oscillators.forEach(o => {
+    try { o.stop(); } catch {}
+  });
 
-export function getAudio() {
-  return audio;
+  oscillators = [];
 }
