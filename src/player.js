@@ -17,13 +17,16 @@ export function playSong(index) {
   const song = currentSongs[currentIndex];
 
   if (!song.audioUrl) {
-    alert('이 노래에는 아직 MP3 음원이 없어!');
+    alert('아직 이 노래의 음원이 생성되지 않았어.');
     return;
   }
 
   audio.src = song.audioUrl;
-  audio.play().catch(() => {
-    alert('음원을 재생할 수 없어. MP3 주소를 확인해 줘.');
+  audio.load();
+
+  audio.play().catch(error => {
+    console.error(error);
+    alert('음악 재생에 실패했어.');
   });
 }
 
@@ -32,7 +35,9 @@ export function pauseSong() {
 }
 
 export function resumeSong() {
-  audio.play();
+  if (audio.src) {
+    audio.play();
+  }
 }
 
 export function nextSong() {
