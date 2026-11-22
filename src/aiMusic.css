@@ -1,29 +1,67 @@
 
-.ai-music {
-  margin-top: 20px;
-  padding: 20px;
-  background: #211a31;
-  border-radius: 18px;
+.music-creator {
+  margin-top: 32px;
+  padding: 24px;
+  border-radius: 22px;
+  background: #211a32;
+  border: 1px solid #44365e;
 }
 
-.ai-music h2 {
-  color: #c9a5ff;
-  margin-bottom: 16px;
-}
-
-.ai-song {
-  display: block;
-  width: 100%;
-  padding: 16px;
-  margin-bottom: 10px;
-  border: 1px solid #57436e;
-  border-radius: 12px;
-  background: #302442;
+.music-creator h2 {
   color: white;
-  text-align: left;
-  font-size: 15px;
+  margin-bottom: 20px;
 }
 
-.ai-song:hover {
-  background: #7446ad;
+.music-creator label {
+  display: block;
+  color: #d9c9ff;
+  margin-bottom: 10px;
+}
+
+.music-creator textarea {
+  width: 100%;
+  min-height: 180px;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid #55446f;
+  border-radius: 14px;
+  background: #151020;
+  color: white;
+  font-size: 15px;
+  resize: vertical;
+  outline: none;
+}
+
+.music-creator textarea:focus {
+  border-color: #a78bfa;
+}
+
+.music-creator button {
+  width: 100%;
+  padding: 15px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 13px;
+  background: #7654d8;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.music-creator button:active {
+  transform: scale(0.98);
+}
+
+#creationStatus {
+  color: #cbb9ff;
+  margin-top: 18px;
+  line-height: 1.6;
+}
+
+#musicPrompt {
+  color: #b8a6e8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
 }
