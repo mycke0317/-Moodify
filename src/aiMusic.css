@@ -6,33 +6,43 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(145deg, #050505, #160c2b, #080510);
-  color: white;
+  background:
+    radial-gradient(circle at top, #291348 0%, transparent 45%),
+    linear-gradient(145deg, #050505, #160c2b, #080510);
+  color: #ffffff;
   font-family: Arial, sans-serif;
 }
 
 .app {
-  width: min(100% - 32px, 900px);
+  width: min(100% - 32px, 950px);
   margin: auto;
-  padding: 32px 0;
+  padding: 35px 0 60px;
 }
 
 h1 {
-  font-size: 38px;
-  color: #c4a1ff;
+  color: #d4b5ff;
+  font-size: 42px;
   text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
 }
 
 .subtitle {
   color: #b9a5d9;
   text-align: center;
+  margin-bottom: 40px;
+}
+
+h2 {
+  color: #e8d9ff;
+  margin-top: 28px;
 }
 
 .moods {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin: 28px 0;
+  margin: 24px 0 32px;
 }
 
 button {
@@ -40,26 +50,36 @@ button {
   border: 1px solid #7042a8;
   color: white;
   border-radius: 14px;
-  padding: 14px;
+  padding: 14px 16px;
+  font-size: 15px;
   cursor: pointer;
+  transition: 0.2s;
 }
 
-button:hover,
+button:hover {
+  background: #57318a;
+  transform: translateY(-2px);
+}
+
 button.active {
   background: #7542bd;
+  border-color: #c5a0ff;
+  box-shadow: 0 0 16px #7542bd66;
 }
 
 .song-list {
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   margin-top: 20px;
 }
 
 .song-card {
-  background: #171020;
+  background: rgba(23, 16, 32, 0.95);
   border: 1px solid #493064;
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 12px;
 }
 
 .song-card h3 {
@@ -67,9 +87,14 @@ button.active {
   margin-top: 0;
 }
 
+.song-card button {
+  width: 100%;
+  margin-top: 10px;
+}
+
 .lyrics {
   white-space: pre-line;
-  line-height: 1.8;
+  line-height: 1.9;
   color: #e4dced;
 }
 
@@ -77,11 +102,29 @@ button.active {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-top: 22px;
+}
+
+.player button {
+  flex: 1;
+  min-width: 110px;
+}
+
+#status {
+  color: #c5a0ff;
   margin-top: 20px;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .moods {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .song-list {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 34px;
   }
 }
