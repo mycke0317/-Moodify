@@ -6,3 +6,6 @@ dist/
 .env.production
 android/.gradle/
 android/build/
+android/app/build/
+.DS_Store
+*.log
