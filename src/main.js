@@ -16,11 +16,10 @@ import {
   stopSong
 } from './player.js';
 
-import { generateMusic } from './musicGenerator.js';
-
 const allSongs = getAllMoodSongs();
 
 let selectedSong = null;
+let selectedMood = 'happy';
 
 document.querySelector('#app').innerHTML = `
   <main class="app">
@@ -47,11 +46,10 @@ document.querySelector('#app').innerHTML = `
       <h2 id="currentTitle">노래를 선택해 줘</h2>
 
       <p id="currentLyrics" class="lyrics">
-        가사가 여기에 표시돼.
+        노래를 선택하면 전체 가사가 표시돼.
       </p>
 
       <div class="player">
-        <button id="generate">✨ AI 음악 생성</button>
         <button id="play">▶ 재생</button>
         <button id="pause">⏸ 일시정지</button>
         <button id="resume">▶ 이어듣기</button>
@@ -66,6 +64,7 @@ document.querySelector('#app').innerHTML = `
 `;
 
 function showSongs(mood) {
+  selectedMood = mood;
   selectedSong = null;
 
   setMood(mood);
@@ -83,7 +82,7 @@ function showSongs(mood) {
     '노래를 선택해 줘';
 
   document.querySelector('#currentLyrics').textContent =
-    '가사가 여기에 표시돼.';
+    '노래를 선택하면 전체 가사가 표시돼.';
 
   document.querySelector('#status').textContent =
     '노래를 선택해 줘.';
@@ -99,8 +98,9 @@ function showSongs(mood) {
     songs.map(song => `
       <article class="song-card">
         <h3>${song.title}</h3>
-        <p class="lyrics">${song.lyrics}</p>
-        <button data-song="${song.id}">이 노래 선택</button>
+        <button data-song="${song.id}">
+          가사 보기
+        </button>
       </article>
     `).join('');
 
@@ -119,7 +119,7 @@ function showSongs(mood) {
         selectedSong.lyrics;
 
       document.querySelector('#status').textContent =
-        '노래 선택 완료';
+        '선택한 노래: ' + selectedSong.title;
     });
   });
 }
@@ -130,30 +130,13 @@ document.querySelectorAll('[data-mood]').forEach(button => {
   });
 });
 
-document.querySelector('#generate').addEventListener('click', async () => {
+document.querySelector('#play').addEventListener('click', async () => {
   if (!selectedSong) {
     document.querySelector('#status').textContent =
       '먼저 노래를 선택해 줘.';
     return;
   }
 
-  try {
-    document.querySelector('#status').textContent =
-      '음악 생성 요청 중...';
-
-    selectedSong = await generateMusic(selectedSong);
-
-    setCurrentSong(selectedSong);
-
-    document.querySelector('#status').textContent =
-      '음악 생성 완료';
-  } catch (error) {
-    document.querySelector('#status').textContent =
-      error.message;
-  }
-});
-
-document.querySelector('#play').addEventListener('click', async () => {
   try {
     await playSong(selectedSong);
     document.querySelector('#status').textContent = '재생 중';
@@ -164,7 +147,15 @@ document.querySelector('#play').addEventListener('click', async () => {
 });
 
 document.querySelector('#pause').addEventListener('click', pauseSong);
-document.querySelector('#resume').addEventListener('click', resumeSong);
+
+document.querySelector('#resume').addEventListener('click', async () => {
+  try {
+    await resumeSong();
+  } catch (error) {
+    document.querySelector('#status').textContent = error.message;
+  }
+});
+
 document.querySelector('#stop').addEventListener('click', stopSong);
 
 showSongs('happy');
