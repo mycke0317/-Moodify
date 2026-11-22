@@ -1,67 +1,87 @@
 
-.music-creator {
-  margin-top: 32px;
-  padding: 24px;
-  border-radius: 22px;
-  background: #211a32;
-  border: 1px solid #44365e;
-}
-
-.music-creator h2 {
-  color: white;
-  margin-bottom: 20px;
-}
-
-.music-creator label {
-  display: block;
-  color: #d9c9ff;
-  margin-bottom: 10px;
-}
-
-.music-creator textarea {
-  width: 100%;
-  min-height: 180px;
+* {
   box-sizing: border-box;
-  padding: 16px;
-  border: 1px solid #55446f;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #050505, #160c2b, #080510);
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  width: min(100% - 32px, 900px);
+  margin: auto;
+  padding: 32px 0;
+}
+
+h1 {
+  font-size: 38px;
+  color: #c4a1ff;
+  text-align: center;
+}
+
+.subtitle {
+  color: #b9a5d9;
+  text-align: center;
+}
+
+.moods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 28px 0;
+}
+
+button {
+  background: #24143d;
+  border: 1px solid #7042a8;
+  color: white;
   border-radius: 14px;
-  background: #151020;
-  color: white;
-  font-size: 15px;
-  resize: vertical;
-  outline: none;
-}
-
-.music-creator textarea:focus {
-  border-color: #a78bfa;
-}
-
-.music-creator button {
-  width: 100%;
-  padding: 15px;
-  margin-top: 12px;
-  border: none;
-  border-radius: 13px;
-  background: #7654d8;
-  color: white;
-  font-size: 15px;
-  font-weight: bold;
+  padding: 14px;
   cursor: pointer;
 }
 
-.music-creator button:active {
-  transform: scale(0.98);
+button:hover,
+button.active {
+  background: #7542bd;
 }
 
-#creationStatus {
-  color: #cbb9ff;
-  margin-top: 18px;
-  line-height: 1.6;
+.song-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
 }
 
-#musicPrompt {
-  color: #b8a6e8;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  font-size: 12px;
+.song-card {
+  background: #171020;
+  border: 1px solid #493064;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.song-card h3 {
+  color: #d2b4ff;
+  margin-top: 0;
+}
+
+.lyrics {
+  white-space: pre-line;
+  line-height: 1.8;
+  color: #e4dced;
+}
+
+.player {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@media (max-width: 500px) {
+  .moods {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
