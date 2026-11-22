@@ -1,62 +1,72 @@
 
-import { setSongs } from './player.js';
-
-const moods = {
+const moodData = {
   happy: {
-    titles: ['햇살 가득한 날', '웃음이 번져', '오늘은 축제', '무지개 너머', '반짝이는 순간'],
+    name: '행복',
+    titles: ['오늘은 좋은 날', '햇살 가득', '웃음이 피어나'],
     lyrics: [
-      '햇살이 창문을 두드려 오늘은 왠지 좋은 예감이 들어 작은 걱정은 바람에 날리고 우리 함께 웃어 봐',
-      '두 발을 맞춰 걸어가 하늘 위로 손을 뻗어 봐 세상이 온통 빛나는 것 같아 지금 이 순간을 기억해'
+      '햇살이 내 창문을 두드려\n오늘은 왠지 좋은 예감이 들어\n작은 바람에도 웃음이 나와\n이 순간을 기억할 거야'
     ]
   },
+
   sad: {
-    titles: ['비 내리는 밤', '남겨진 편지', '조용한 기억', '그날의 우리', '늦은 새벽'],
+    name: '슬픔',
+    titles: ['비 오는 밤', '그리운 순간', '조용한 마음'],
     lyrics: [
-      '창밖에 비가 내리고 조용히 네 이름을 불러 지나간 시간은 멀어져도 마음 한편에 남아 있어',
-      '괜찮다고 말해 보지만 오늘은 조금 느리게 걸을래 언젠가 다시 웃을 날을 기다리며 노래할게'
+      '창밖에 비가 내리고\n조용히 하루를 돌아봐\n괜찮아질 거라고 믿으며\n내일을 기다려 볼게'
     ]
   },
+
   angry: {
-    titles: ['멈추지 않아', '불꽃처럼', '한계를 넘어', '나의 목소리', '다시 시작해'],
+    name: '화남',
+    titles: ['멈추지 않아', '다시 일어나', '나의 목소리'],
     lyrics: [
-      '가슴속에 뜨거운 리듬 더 크게 울리는 심장소리 누구도 나를 멈추지 못해 나만의 길을 걸어갈래',
-      '흔들려도 다시 일어나 내 목소리를 높여 봐 어제의 나를 넘어서는 순간 새로운 세상이 열려'
+      '가슴속에 뜨거운 바람\n더 이상 물러서지 않아\n내 목소리를 크게 외쳐\n다시 앞으로 나아가'
     ]
   },
+
   calm: {
-    titles: ['바람의 노래', '고요한 오후', '구름 산책', '푸른 바다', '달빛 아래'],
+    name: '차분함',
+    titles: ['고요한 숲', '느린 오후', '평온한 하루'],
     lyrics: [
-      '부드러운 바람이 불어와 천천히 눈을 감아 봐 아무 말 없이 이 순간에 머물러 마음을 쉬게 해',
-      '푸른 하늘 구름처럼 서두르지 않아도 괜찮아 오늘은 조금 천천히 흘러가도 좋아'
+      '바람이 천천히 지나가\n모든 것이 조용해지고\n잠시 눈을 감아 보면\n평온함이 찾아와'
     ]
   },
+
   excited: {
-    titles: ['두근두근', '분홍빛 순간', '너를 만난 날', '반짝이는 약속', '첫 번째 설렘'],
+    name: '신남',
+    titles: ['오늘 밤', '반짝이는 순간', '더 높이'],
     lyrics: [
-      '너를 보는 순간 세상이 반짝여 가슴속 작은 별이 춤을 춰 오늘의 설렘을 기억할래 이 순간이 참 좋아',
-      '한 걸음 가까워질 때마다 마음속에 봄이 찾아와 아직 말하지 못한 마음을 멜로디에 담아 볼래'
+      '두근거리는 이 순간\n리듬에 몸을 맡겨 봐\n오늘은 멈추지 않을래\n세상 끝까지 달려가'
     ]
   },
+
   tired: {
-    titles: ['포근한 꿈', '느린 하루', '이불 속 우주', '별빛 휴식', '잠들기 전에'],
+    name: '피곤함',
+    titles: ['쉬어 가도 돼', '포근한 밤', '잠깐의 휴식'],
     lyrics: [
-      '오늘 하루 수고했어 이제는 잠시 쉬어 가도 돼 조용한 밤이 널 감싸 주면 편안한 꿈을 꾸면 돼',
-      '천천히 흘러가는 시간 아무것도 서두르지 마 포근한 멜로디에 기대어 오늘을 내려놓아'
+      '오늘 하루 수고했어\n이제는 쉬어도 괜찮아\n천천히 숨을 고르면서\n편안한 밤을 맞이해'
     ]
   }
 };
 
 export function getMoodSongs(mood) {
-  const data = moods[mood];
+  const data = moodData[mood];
+
   if (!data) return [];
 
-  const songs = Array.from({ length: 100 }, (_, i) => ({
-    id: `${mood}-${i + 1}`,
-    title: `${data.titles[i % data.titles.length]} ${String(i + 1).padStart(3, '0')}`,
-    lyrics: data.lyrics[i % data.lyrics.length],
+  return data.titles.map((title, index) => ({
+    id: `${mood}-${index + 1}`,
+    title,
+    mood,
+    lyrics: data.lyrics[index % data.lyrics.length],
     audioUrl: ''
   }));
+}
 
-  setSongs(songs);
-  return songs;
+export function getAllMoodSongs() {
+  return Object.keys(moodData).flatMap(getMoodSongs);
+}
+
+export function getMoodName(mood) {
+  return moodData[mood]?.name ?? '알 수 없음';
 }
